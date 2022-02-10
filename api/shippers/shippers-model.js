@@ -1,3 +1,5 @@
+const db = require('../../data/db-config');
+
 module.exports = {
   get,
   getById,
@@ -6,22 +8,29 @@ module.exports = {
   remove,
 }
 
-async function get() {
-  return 'get wired'
+function get() {
+  // SELECT * FROM shippers;
+  return db('shippers');
 }
 
-async function getById() {
-  return 'getById wired'
+function getById(id) {
+  // without .first() we ALWAYS get an array with could be empty
+  return db('shippers').where('id', id).first()
 }
 
-async function create() {
-  return 'create wired'
+async function create({ title, contents }) {
+  const [id] = await db('shippers').insert({ title, contents })
+  const newShipper = await getById(id)
+  return newShipper
 }
 
-async function update() {
-  return 'update wired'
+function update(id, { title, contents }) {
+  return db('shippers').where('id', id).update({ title, contents })
+    .then(() => {
+      return getById(id)
+    })
 }
 
-async function remove() {
-  return 'delete wired'
+async function remove(id) {
+  return db('shippers').where('id', id).del()
 }
